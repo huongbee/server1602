@@ -28,6 +28,9 @@ class User extends UserModel{
         if(userCheck) throw new Error('Email existed!')
 
         const passwordHash = await hash(password)
+        .catch(err=> {
+            throw new Error('Please try again!')
+        })
         const user = await new UserModel({
             email, password: passwordHash, name
         }).save();
@@ -38,7 +41,10 @@ class User extends UserModel{
             name: user.name
         } 
     }
-    signIn(){
+    static async signIn(email, password){
+        // find user by email
+        // compare password
+        // return user with token 
 
     }
 }
