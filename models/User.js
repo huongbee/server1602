@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 const { hash, compare } = require('../lib/bcrypt')
 const { sign, verify } = require('../lib/jwt')
-const { checkObjectIdUser } = require('../lib/checkObjectId')
+// const { checkObjectIdUser } = require('../lib/checkObjectId')
 
 const UserSchema = new Schema({
     email: {type:String, required:true, unique:true}, 
@@ -24,6 +24,14 @@ const UserSchema = new Schema({
 const UserModel = mongoose.model('user',UserSchema)
 
 class User extends UserModel{
+    static checkObjectIdUser(userId){
+        return new Promise((resolve, reject)=>{
+            UserModel.findById(userId)
+            .then(()=>resolve(true))
+            .catch(()=>reject(false))
+        })
+    }
+    
     static async signUp(email, password ,name){
         //check email exist
         const userCheck = await UserModel.findOne({email})
@@ -83,22 +91,20 @@ class User extends UserModel{
         }
         return {sender, receiver}
     }
-    static async acceptFriendRequest(userId, sender){
-        const checkUserId = await checkObjectIdUser(userId)
-        const checkSender = await checkObjectIdUser(sender)
+    static async acceptFriendRequest(userId, senderId){
+        const checkUserId = await User.checkObjectIdUser(userId)
+        const checkSender = await User.checkObjectIdUser(senderId)
         if(checkSender && checkUserId){
-            //update user: set friend , remove receiveRequest
-            const user = UserModel.findByIdAndUpdate(userId,{
+            let user = await UserModel.findByIdAndUpdate(userId,{
                 $addToSet:{
-                    friends: sender
+                    friends: senderId
                 },
                 $pull:{
-                    receiveRequests: sender
+                    receiveRequests: senderId
                 }
             },{new:true})
             if(!user) throw new Error('Can not find/update user!')
-            //update sender: set friend , remove sendRequest
-            const sender = UserModel.findByIdAndUpdate(sender,{
+            let friend = await UserModel.findByIdAndUpdate(senderId,{
                 $addToSet:{
                     friends: userId
                 },
@@ -106,7 +112,12 @@ class User extends UserModel{
                     sendRequests: userId
                 }
             },{new:true})
-            
+            if(!friend) throw new Error('Can not find/update user!')
+            friend = friend.toObject()
+            user = user.toObject()
+            delete friend.password
+            delete user.password
+            return { user, friend }
         }
         else{
             return false;
@@ -118,4 +129,4 @@ class User extends UserModel{
     }
 }
 
-module.exports = User
+module.exports = { User, UserModel }

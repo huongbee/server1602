@@ -19,4 +19,7 @@ const CommentSchema = new Schema({
     ]
 })
 const CommentModel = mongoose.model('comment',CommentSchema)
+
+// create , update, delete, like, dislike
+
 module.exports = CommentModel

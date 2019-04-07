@@ -12,4 +12,5 @@ const PostSchema = new Schema({
     ]
 })
 const PostModel = mongoose.model('post',PostSchema)
+// create , update, delete, like, dislike
 module.exports = PostModel
