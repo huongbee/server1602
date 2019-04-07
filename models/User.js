@@ -59,9 +59,29 @@ class User extends UserModel{
             // return { _id, name, email, token}
         }
     }
-    static async sendFriendRequest(){
+    static async sendFriendRequest(idSender, idReceiver){
         // update sender
+        const sender = await UserModel.findByIdAndUpdate(idSender,{
+            $addToSet:{
+                sendRequests: idReceiver
+            }
+        },{new:true})
+        if(!sender) throw new Error('Can not find user!')
         // update receiver
+        const receiver = await UserModel.findByIdAndUpdate(idReceiver,{
+            $addToSet:{
+                receiveRequests: idSender
+            }
+        },{new:true})
+        if(!receiver){
+            const remove =  await UserModel.findByIdAndUpdate(idSender,{
+                $pull:{
+                    sendRequests: idReceiver
+                }
+            },{new:true})
+            throw new Error('Can not find user!')
+        }
+        return {sender, receiver}
     }
     static async acceptFriendRequest(){
 

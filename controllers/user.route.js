@@ -43,8 +43,25 @@ router.post('/signin',(req,res)=>{
 }) 
 router.post('/send-friend-request',authenticate,(req,res)=>{
     const { sendUser , receiveUser } = req.body
-    
-    console.log( { sendUser , receiveUser })
+    User.sendFriendRequest(sendUser,receiveUser)
+    .then(obj=>{
+        res.send({
+            code: 1,
+            data: {
+                sender : obj.sender,
+                receiver: obj.receiver,
+                token: req.token
+            },
+            message: ''
+        })
+    })
+    .catch(err=>{
+        res.send({
+            code: 0,
+            data: null,
+            message: err.message
+        })
+    })
 })
 
 
