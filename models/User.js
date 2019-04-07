@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 const { hash, compare } = require('../lib/bcrypt')
 const { sign, verify } = require('../lib/jwt')
-
+const { checkObjectIdUser } = require('../lib/checkObjectId')
 
 const UserSchema = new Schema({
     email: {type:String, required:true, unique:true}, 
@@ -83,8 +83,34 @@ class User extends UserModel{
         }
         return {sender, receiver}
     }
-    static async acceptFriendRequest(){
-
+    static async acceptFriendRequest(userId, sender){
+        const checkUserId = await checkObjectIdUser(userId)
+        const checkSender = await checkObjectIdUser(sender)
+        if(checkSender && checkUserId){
+            //update user: set friend , remove receiveRequest
+            const user = UserModel.findByIdAndUpdate(userId,{
+                $addToSet:{
+                    friends: sender
+                },
+                $pull:{
+                    receiveRequests: sender
+                }
+            },{new:true})
+            if(!user) throw new Error('Can not find/update user!')
+            //update sender: set friend , remove sendRequest
+            const sender = UserModel.findByIdAndUpdate(sender,{
+                $addToSet:{
+                    friends: userId
+                },
+                $pull:{
+                    sendRequests: userId
+                }
+            },{new:true})
+            
+        }
+        else{
+            return false;
+        }
     }
 
     static async removeFriend(){
