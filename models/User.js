@@ -125,7 +125,7 @@ class User extends UserModel{
     }
 
     static async removeFriend(){
-        
+           
     }
 }
 
