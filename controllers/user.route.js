@@ -44,6 +44,7 @@ router.post('/signin',(req,res)=>{
 router.post('/send-friend-request',authenticate,(req,res)=>{
     const { receiveUser } = req.body
     const sendUser = req.userId
+    res.setHeader('token',req.token)
     User.sendFriendRequest(sendUser,receiveUser)
     .then(obj=>{
         res.send({
@@ -51,7 +52,6 @@ router.post('/send-friend-request',authenticate,(req,res)=>{
             data: {
                 sender : obj.sender,
                 receiver: obj.receiver,
-                token: req.token
             },
             message: ''
         })
@@ -68,15 +68,14 @@ router.post('/send-friend-request',authenticate,(req,res)=>{
 router.put('/accept-friend-request',authenticate,(req,res)=>{
     const { senderId } = req.body
     const userId = req.userId // req.userId from authenticate 
+    res.setHeader('token',req.token)
     User.acceptFriendRequest(userId,senderId)
     .then(obj=>{
-        console.log(obj)
         res.send({
             code: 1,
             data: {
                 user : obj.user,
                 friend: obj.friend,
-                token: req.token
             },
             message: ''
         })
@@ -84,9 +83,7 @@ router.put('/accept-friend-request',authenticate,(req,res)=>{
     .catch(err=>{
         res.send({
             code: 0,
-            data: {
-                token: req.token
-            },
+            data: null,
             message: err.message
         })
     })
