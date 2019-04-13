@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
-const User = require('./User')
+const {User} = require('./User')
 
 const PostSchema = new Schema({
     author : { type: Schema.Types.ObjectId, ref:'user'}, 
@@ -19,18 +19,18 @@ class Post extends PostModel{
     static async createPost(author,content){
         const post = await PostModel.create({author,content})
         if(!post) throw new Error('Cannot create post!');
-        const user = User.findByIdAndUpdate(author,{
+        const user = await User.findByIdAndUpdate(author,{
             $addToSet:{
                 posts: post._id
             }
-        })
+        },{new: true})
         if(!user){ 
             //remove post
-            PostModel.findByIdAndRemove(post._id)
+            const p = await PostModel.findByIdAndRemove(post._id)
             throw new Error('Cannot find author!')
         };
         return post;
     }
 }
 
-module.exports = Post
+module.exports = {Post, PostModel}
