@@ -3,6 +3,15 @@ const router = express.Router();
 const {User} = require('../models/User')
 const authenticate = require('../lib/authenticate')
 
+router.post('/check', authenticate,(req,res)=>{
+    const { newToken } = req.token
+    res.setHeader('token', newToken)
+    res.send({ 
+        code: 1,
+        data: null,
+        message: ''
+    })
+})
 router.post('/signup',(req,res)=>{
     const { email, password, name } = req.body
     User.signUp(email, password, name)
