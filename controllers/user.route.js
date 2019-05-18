@@ -4,7 +4,7 @@ const {User} = require('../models/User')
 const authenticate = require('../lib/authenticate')
 
 router.post('/check', authenticate,(req,res)=>{
-    const { newToken } = req.token
+    const newToken = req.token
     res.setHeader('token', newToken)
     res.send({ 
         code: 1,
