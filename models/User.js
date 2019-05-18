@@ -127,6 +127,16 @@ class User extends UserModel{
     static async removeFriend(){
            
     }
+    static async findUser(_id){
+        const user = await UserModel.findById(_id)
+        if(!user) throw new Error('Can not find user!')
+        return {
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+        };
+    }
+
 }
 
 module.exports = { User, UserModel }

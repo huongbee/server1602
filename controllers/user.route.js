@@ -4,13 +4,23 @@ const {User} = require('../models/User')
 const authenticate = require('../lib/authenticate')
 
 router.post('/check', authenticate,(req,res)=>{
-    const newToken = req.token
-    res.setHeader('token', newToken)
-    res.send({ 
-        code: 1,
-        data: null,
-        message: ''
+    const id = req.userId
+    User.findUser(id)
+    .then(user=>{
+        res.send({ 
+            code: 1,
+            data: { user },
+            message: ''
+        })
     })
+    .catch(err=>{
+        res.send({ 
+            code: 0,
+            data: null,
+            message: err.message
+        })
+    })
+    
 })
 router.post('/signup',(req,res)=>{
     const { email, password, name } = req.body
@@ -53,7 +63,6 @@ router.post('/signin',(req,res)=>{
 router.post('/send-friend-request',authenticate,(req,res)=>{
     const { receiveUser } = req.body
     const sendUser = req.userId
-    res.setHeader('token',req.token)
     User.sendFriendRequest(sendUser,receiveUser)
     .then(obj=>{
         res.send({
@@ -77,7 +86,6 @@ router.post('/send-friend-request',authenticate,(req,res)=>{
 router.put('/accept-friend-request',authenticate,(req,res)=>{
     const { senderId } = req.body
     const userId = req.userId // req.userId from authenticate 
-    res.setHeader('token',req.token)
     User.acceptFriendRequest(userId,senderId)
     .then(obj=>{
         res.send({

@@ -7,7 +7,6 @@ router.use(authenticate)
 router.post('/create',(req,res)=>{
     const author = req.userId
     const content = req.body.content;
-    res.setHeader('token',req.token)
     Post.createPost(author,content)
     .then(post=>{
         res.send({
