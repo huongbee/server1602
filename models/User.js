@@ -138,6 +138,20 @@ class User extends UserModel{
         };
     }
 
+    static async changeAvatar(_id, avatar){
+        const user = await UserModel.findOneAndUpdate(
+            { _id },
+            { avatar },
+            { new: true}
+        )
+        if(!user) throw new Error('Can not find user!')
+        return {
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            avatar: user.avatar
+        };
+    }
 }
 
 module.exports = { User, UserModel }
