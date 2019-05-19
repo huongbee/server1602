@@ -7,7 +7,8 @@ const { sign, verify } = require('../lib/jwt')
 const UserSchema = new Schema({
     email: {type:String, required:true, unique:true}, 
     password : {type:String, required:true}, 
-    name: String, 
+    name: String,
+    avatar: {type: String, default: 'user-avatar.png'}, 
     posts: [
         {type:Schema.Types.ObjectId, ref:'post'}
     ], 
